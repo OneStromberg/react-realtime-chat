@@ -1,16 +1,18 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { Avatar, List, Input, Icon, Layout } from 'antd'
+import moment from 'moment';
+
+import { Avatar, List, Input, Icon, Layout, Modal } from 'antd'
 import { GRAVATAR_URI } from './../../constants';
 
 import './style.less'
 
 const { Content, Header } = Layout;
 
-var ChatItem = ({ message, avatar, email }) => {
+var ChatItem = ({ message, avatar, email, onClick }) => {
   return (<List.Item className="ChatItem">
     <List.Item.Meta
-            avatar={<Avatar shape="square" size="large" src={`${GRAVATAR_URI}/${avatar}`}/>}
+            avatar={<Avatar onClick={() => onClick(avatar, email)} shape="square" size="large" src={`${GRAVATAR_URI}/${avatar}`}/>}
             title={<b>{email}</b>}
             description={message}
           />
@@ -36,6 +38,19 @@ class ChatHistory extends PureComponent {
       filter: value
     });
   }
+  onInfoOpen = (avatar, email) => {
+    const { messages } = this.props;
+    const firstMessage = messages.find(el => el.email == email);
+    if (firstMessage) {
+      Modal.info({
+        title: email,
+        content: <div>
+          <Avatar shape="square" size="large" src={`${GRAVATAR_URI}/${avatar}`}/>
+          <div>Last active at <b>{moment(firstMessage.date).format('LLL')}</b></div>
+        </div>,
+      });
+    }
+  }
   render() {
     const { messages, avatars } = this.props;
     const { filter } = this.state;
@@ -54,7 +69,7 @@ class ChatHistory extends PureComponent {
         </Header>
         <Content>
           <List bordered={false} dataSource={filtredMessages} renderItem={({email, ...props}) => (
-            <ChatItem {...props} email={email} avatar={avatars[email]}/>
+            <ChatItem onClick={this.onInfoOpen} {...props} email={email} avatar={avatars[email]}/>
           )} />
         </Content>
       </Layout>

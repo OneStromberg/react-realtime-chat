@@ -9,7 +9,7 @@ services:
     container_name: mongodb
     image: 'bitnami/mongodb:latest'
     volumes:
-      - ./data:/data/db
+      - ./data:/data/mongodb
     ports:
       - "27017:27017"
     networks: 
