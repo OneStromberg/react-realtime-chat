@@ -9,4 +9,4 @@ To run Application - in your terminal run next commands:
 - git clone git@github.com:OneStromberg/react-realtime-chat.git
 - cd react-realtime-chat
 - docker-compose up --build -d
-- in your browser go to the [link](http://localhost:8020)
+- in your browser go to the [link](http://localhost:8030)
