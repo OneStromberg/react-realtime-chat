@@ -1,0 +1,37 @@
+version: '2'
+
+networks:
+  backend:
+    driver: bridge
+
+services:
+  mongodb:
+    container_name: mongodb
+    image: 'bitnami/mongodb:latest'
+    volumes:
+      - ./data:/data/db
+    ports:
+      - "27017:27017"
+    networks: 
+      - backend
+  client:
+    container_name: client
+    build:
+      context: ./client
+    ports:
+      - "8030:3000"
+    links:
+      - "api"
+    networks: 
+      - backend
+  api:
+    container_name: api
+    build:
+      context: ./api
+    command: ["/wait-for-it.sh", "mongodb:27017", "--", "node", "index.js"]
+    ports:
+      - "8020:3001"
+    links:
+      - "mongodb"
+    networks: 
+      - backend
