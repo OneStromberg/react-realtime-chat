@@ -1,29 +1,18 @@
 import { eventChannel } from 'redux-saga'
 import { takeEvery, put, call, fork, select, take } from 'redux-saga/effects';
-import Nes from 'nes';
-import md5 from 'js-md5';
 
+import { subscribe } from './../../api/socket';
 import Action from './../../actions/Action';
 import error from './error';
-import { actionTypes, SOCKET_URI } from './../../constants';
+import { actionTypes } from './../../constants';
 import { allAvatars } from './../reducers/data';
 import * as Api from './../../api';
-
-const client = new Nes.Client(SOCKET_URI);
 
 function* getMessages(n = 1) {
   try {
     let messages = yield call(Api.getMessages, n);
     if (messages) {
       yield put(Action(actionTypes.RECEIVED_MESSAGES, messages));
-      let avatars = yield select(allAvatars);
-      messages.reduce((acc, m) => {
-        if (m.email && !avatars[m.email]){
-          avatars[m.email] = md5(m.email.toLowerCase());
-        }
-        return avatars;
-      }, avatars);
-      yield put(Action(actionTypes.RECEIVED_AVATARS, avatars));
     }
   } catch(e) {
     yield error(e);
@@ -48,14 +37,8 @@ export function* sendMessage({ payload }){
 
 function* createSocketChannel() {
   try {
-    yield client.connect();
-    return eventChannel(emit => {
-      client.onUpdate = emit;
-      const unsubscribe = () => {
-        client.unsubscribe('/added-message')
-      }
-      return unsubscribe
-    })
+    const channel = yield subscribe('/added-message');
+    return eventChannel(channel);
   } catch(e) {
     yield error(e);
   }

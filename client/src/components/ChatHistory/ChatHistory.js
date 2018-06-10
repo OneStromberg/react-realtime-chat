@@ -35,7 +35,7 @@ class ChatHistory extends PureComponent {
   }
   onFilterChange = ({target: { value }}) => {
     this.setState({
-      filter: value
+      filter: value && value.toLowerCase()
     });
   }
   onInfoOpen = (avatar, email) => {
@@ -54,7 +54,7 @@ class ChatHistory extends PureComponent {
   render() {
     const { messages, avatars } = this.props;
     const { filter } = this.state;
-    let filtredMessages
+    let filtredMessages;
     if (filter) {
       filtredMessages = messages.filter((m) => {
         return m.email.indexOf(filter) !== -1
@@ -69,7 +69,7 @@ class ChatHistory extends PureComponent {
         </Header>
         <Content>
           <List bordered={false} dataSource={filtredMessages} renderItem={({email, ...props}) => (
-            <ChatItem onClick={this.onInfoOpen} {...props} email={email} avatar={avatars[email]}/>
+            <ChatItem onClick={this.onInfoOpen} {...props} email={email} avatar={avatars.get(email)}/>
           )} />
         </Content>
       </Layout>
@@ -77,10 +77,10 @@ class ChatHistory extends PureComponent {
   }
 }
 
-function mapStateToProps({ data: { messages, avatars } }) {
+function mapStateToProps({ data: {  messages, avatars } }) {
   return {
-    avatars,
-    messages
+    messages, 
+    avatars
   };
 }
 
